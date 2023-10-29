@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,6 +32,7 @@ fun Home(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val fillSizeModifier = Modifier.fillMaxSize()
+    val songLink = viewModel.randomSongLik.collectAsState()
     Surface(
         modifier = fillSizeModifier
     ){
@@ -43,7 +45,10 @@ fun Home(
                 .fillMaxWidth()
                 .padding(14.dp)
             Spacer(modifier = Modifier.size(28.dp))
-            DailySuggestedSongCard(modifier = cardModifier)
+            DailySuggestedSongCard(
+                getSongLink = { songLink.value },
+                modifier = cardModifier
+            )
             Spacer(modifier = Modifier.size(14.dp))
             YourDailySubmissionCard(
                 onSubmit = { viewModel.addSong() },
@@ -55,6 +60,7 @@ fun Home(
 
 @Composable
 fun DailySuggestedSongCard(
+    getSongLink: () -> String,
     modifier: Modifier = Modifier
 ) {
     Card{
@@ -68,7 +74,7 @@ fun DailySuggestedSongCard(
             )
             Spacer(modifier = Modifier.size(14.dp))
             Text(
-                text = "This will show the fantastical song link!",
+                text = getSongLink(),
                 style = Typography.bodyMedium
             )
         }

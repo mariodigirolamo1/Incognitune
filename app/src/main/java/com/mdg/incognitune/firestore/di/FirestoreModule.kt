@@ -4,6 +4,8 @@ import com.mdg.incognitune.common.data.Datasource
 import com.mdg.incognitune.firestore.data.FirestoreDatasource
 import com.mdg.incognitune.firestore.data.FirestoreRepository
 import com.mdg.incognitune.firestore.domain.AddSongRecordUseCase
+import com.mdg.incognitune.firestore.domain.GetRandomSongUseCase
+import com.mdg.incognitune.firestore.domain.GetSongsCountUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,4 +31,16 @@ object FirestoreModule {
     fun provideAddSongRecordUseCase(
         firestoreRepository: FirestoreRepository
     ) = AddSongRecordUseCase(firestoreRepository = firestoreRepository)
+
+    @Singleton
+    @Provides
+    fun provideGetSongsCountUseCase(
+        firestoreRepository: FirestoreRepository
+    ) = GetSongsCountUseCase(firestoreRepository = firestoreRepository)
+
+    @Singleton
+    @Provides
+    fun provideGetRandomSongUseCase(
+        firestoreRepository: FirestoreRepository
+    ) = GetRandomSongUseCase(firestoreRepository = firestoreRepository)
 }
