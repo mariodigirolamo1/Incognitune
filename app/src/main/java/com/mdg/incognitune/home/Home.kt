@@ -21,12 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mdg.incognitune.IncognituneApp
 import com.mdg.incognitune.common.ui.theme.IncognituneTheme
 import com.mdg.incognitune.common.ui.theme.Typography
 
 @Composable
-fun Home() {
+fun Home(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
     val fillSizeModifier = Modifier.fillMaxSize()
     Surface(
         modifier = fillSizeModifier
@@ -42,7 +45,10 @@ fun Home() {
             Spacer(modifier = Modifier.size(28.dp))
             DailySuggestedSongCard(modifier = cardModifier)
             Spacer(modifier = Modifier.size(14.dp))
-            YourDailySubmissionCard(modifier = cardModifier)
+            YourDailySubmissionCard(
+                onSubmit = { viewModel.addSong() },
+                modifier = cardModifier
+            )
         }
     }
 }
@@ -72,6 +78,7 @@ fun DailySuggestedSongCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YourDailySubmissionCard(
+    onSubmit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card{
@@ -93,7 +100,7 @@ fun YourDailySubmissionCard(
                 label = { Text("Your song link") }
             )
             Spacer(modifier = Modifier.size(14.dp))
-            Button(onClick = {}) {
+            Button(onClick = onSubmit) {
                 Text(text = "Send to the World!")
             }
         }

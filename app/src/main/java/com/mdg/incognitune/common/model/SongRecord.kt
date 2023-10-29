@@ -1,9 +1,7 @@
 package com.mdg.incognitune.common.model
 
-import java.time.LocalDate
-
 data class SongRecord(
     val addedBy: String,
-    val creation: LocalDate,
+    val creation: Long,
     val link: String
 )
