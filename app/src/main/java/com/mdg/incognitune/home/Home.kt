@@ -1,4 +1,4 @@
-package com.mdg.incognitune.ui
+package com.mdg.incognitune.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,11 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mdg.incognitune.ui.theme.IncognituneTheme
-import com.mdg.incognitune.ui.theme.Typography
+import com.mdg.incognitune.IncognituneApp
+import com.mdg.incognitune.common.ui.theme.IncognituneTheme
+import com.mdg.incognitune.common.ui.theme.Typography
 
 @Composable
-fun IncognituneApp() {
+fun Home() {
     val fillSizeModifier = Modifier.fillMaxSize()
     Surface(
         modifier = fillSizeModifier

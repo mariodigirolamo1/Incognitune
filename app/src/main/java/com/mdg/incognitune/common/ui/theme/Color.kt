@@ -1,4 +1,4 @@
-package com.mdg.incognitune.ui.theme
+package com.mdg.incognitune.common.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,9 +1,8 @@
-package com.mdg.incognitune.di
+package com.mdg.incognitune.firestore.di
 
-import com.mdg.incognitune.data.Datasource
-import com.mdg.incognitune.data.FirestoreDatasource
-import com.mdg.incognitune.data.FirestoreRepository
-import dagger.Binds
+import com.mdg.incognitune.common.data.Datasource
+import com.mdg.incognitune.firestore.data.FirestoreDatasource
+import com.mdg.incognitune.firestore.data.FirestoreRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

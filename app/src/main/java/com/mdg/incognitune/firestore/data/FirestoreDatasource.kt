@@ -1,9 +1,10 @@
-package com.mdg.incognitune.data
+package com.mdg.incognitune.firestore.data
 
 import android.util.Log
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.mdg.incognitune.model.SongRecord
+import com.mdg.incognitune.common.data.Datasource
+import com.mdg.incognitune.common.model.SongRecord
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException

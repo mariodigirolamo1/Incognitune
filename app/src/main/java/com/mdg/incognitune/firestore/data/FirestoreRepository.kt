@@ -1,6 +1,6 @@
-package com.mdg.incognitune.data
+package com.mdg.incognitune.firestore.data
 
-import com.mdg.incognitune.model.SongRecord
+import com.mdg.incognitune.common.model.SongRecord
 import javax.inject.Inject
 
 class FirestoreRepository @Inject constructor(

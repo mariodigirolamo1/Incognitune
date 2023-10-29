@@ -1,4 +1,4 @@
-package com.mdg.incognitune.model
+package com.mdg.incognitune.common.model
 
 import java.time.LocalDate
 
