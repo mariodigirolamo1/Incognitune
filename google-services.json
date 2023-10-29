@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "204847556025",
+    "project_id": "incognitune",
+    "storage_bucket": "incognitune.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:204847556025:android:de43fdc0e56799b71b8268",
+        "android_client_info": {
+          "package_name": "com.mdg.incognitune"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOdG26xaLynF7XAVCGG29OnkqsJX_4H84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
