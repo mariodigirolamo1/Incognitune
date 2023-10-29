@@ -1,5 +1,6 @@
 package com.mdg.incognitune.home
 
+import android.widget.ProgressBar
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -32,7 +34,7 @@ fun Home(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val fillSizeModifier = Modifier.fillMaxSize()
-    val songLink = viewModel.randomSongLik.collectAsState()
+    val uiState = viewModel.uiState.collectAsState()
     Surface(
         modifier = fillSizeModifier
     ){
@@ -46,7 +48,7 @@ fun Home(
                 .padding(14.dp)
             Spacer(modifier = Modifier.size(28.dp))
             DailySuggestedSongCard(
-                getSongLink = { songLink.value },
+                getUiState = { uiState.value },
                 modifier = cardModifier
             )
             Spacer(modifier = Modifier.size(14.dp))
@@ -60,9 +62,10 @@ fun Home(
 
 @Composable
 fun DailySuggestedSongCard(
-    getSongLink: () -> String,
+    getUiState: () -> HomeUIState,
     modifier: Modifier = Modifier
 ) {
+    val uiState = getUiState()
     Card{
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,10 +76,17 @@ fun DailySuggestedSongCard(
                 style = Typography.titleLarge
             )
             Spacer(modifier = Modifier.size(14.dp))
-            Text(
-                text = getSongLink(),
-                style = Typography.bodyMedium
-            )
+            when(uiState){
+                is HomeUIState.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is HomeUIState.Ready -> {
+                    Text(
+                        text = uiState.songLink,
+                        style = Typography.bodyMedium
+                    )
+                }
+            }
         }
     }
 }

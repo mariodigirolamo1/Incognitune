@@ -16,14 +16,19 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
+/**
+ * todo: create ui state for Home
+ *  we expecte it to contain info about the suggested song state
+ *  at least let's show a loading and a ready
+ */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val addSongRecordUseCase: AddSongRecordUseCase,
     private val getSongsCountUseCase: GetSongsCountUseCase,
     private val getRandomSongUseCase: GetRandomSongUseCase
 ) : ViewModel() {
-    private var _randomSongLink = MutableStateFlow("Random song link will show here!")
-    val randomSongLik = _randomSongLink
+    private var _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
+    val uiState = _uiState
 
     init {
         getSongsCount()
@@ -50,7 +55,7 @@ class HomeViewModel @Inject constructor(
             }.onSuccess {song ->
                 val songLink = song.link
                 Log.i(TAG, "getRandomSong: $songLink")
-                _randomSongLink.emit(songLink)
+                _uiState.emit(HomeUIState.Ready(songLink = songLink))
             }.onFailure {throwable ->
                 Log.e(TAG, "getRandomSong: failed", throwable)
             }
