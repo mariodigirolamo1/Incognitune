@@ -50,6 +50,25 @@ class FirebaseAuthRepo {
         }
     }
 
+    suspend fun signIn(
+        email: String,
+        password: String
+    ): Result<FirebaseUser> {
+        return kotlin.runCatching {
+            suspendCoroutine {continuation ->
+                auth.signInWithEmailAndPassword(email,password)
+                    .addOnSuccessListener {authResult ->
+                        Log.i(TAG, "signIn: some result in $authResult")
+                        continuation.resume(authResult.user!!)
+                    }
+                    .addOnFailureListener{exception ->
+                        Log.e(TAG, "signIn: failure", exception)
+                        continuation.resumeWithException(exception)
+                    }
+            }
+        }
+    }
+
     private companion object{
         const val TAG = "FirebaseAuthRepo"
     }

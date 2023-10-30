@@ -1,18 +1,17 @@
 package com.mdg.incognitune.firebaseauth.di
 
-import com.google.firebase.auth.FirebaseAuth
 import com.mdg.incognitune.firebaseauth.domain.FirebaseAuthRepo
-import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface FirebaseAuthModule {
+object FirebaseAuthModule {
 
-    @Binds
-    fun bindFirebaseAuthRepo(
-        firebaseAuthRepo: FirebaseAuthRepo
-    ): FirebaseAuthRepo
+    @Singleton
+    @Provides
+    fun provideFirebaseAuthRepo(): FirebaseAuthRepo = FirebaseAuthRepo()
 }

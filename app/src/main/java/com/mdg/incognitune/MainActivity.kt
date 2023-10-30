@@ -9,9 +9,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity @Inject constructor(
-    private val firebaseAuthRepo: FirebaseAuthRepo
-) : ComponentActivity() {
+class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var firebaseAuthRepo: FirebaseAuthRepo
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
