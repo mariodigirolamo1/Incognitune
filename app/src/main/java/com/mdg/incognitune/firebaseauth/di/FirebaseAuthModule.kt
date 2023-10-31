@@ -1,6 +1,6 @@
 package com.mdg.incognitune.firebaseauth.di
 
-import com.mdg.incognitune.firebaseauth.domain.FirebaseAuthRepo
+import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

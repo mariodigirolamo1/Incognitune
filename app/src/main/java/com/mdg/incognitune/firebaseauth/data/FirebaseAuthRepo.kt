@@ -1,4 +1,4 @@
-package com.mdg.incognitune.firebaseauth.domain
+package com.mdg.incognitune.firebaseauth.data
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth

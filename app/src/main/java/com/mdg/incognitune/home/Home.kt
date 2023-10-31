@@ -25,13 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.mdg.incognitune.IncognituneApp
 import com.mdg.incognitune.common.ui.theme.IncognituneTheme
 import com.mdg.incognitune.common.ui.theme.Typography
 
 @Composable
 fun Home(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val fillSizeModifier = Modifier.fillMaxSize()
     val uiState = viewModel.uiState.collectAsState()
@@ -49,6 +52,7 @@ fun Home(
             Spacer(modifier = Modifier.size(28.dp))
             DailySuggestedSongCard(
                 getUiState = { uiState.value },
+                navController = navController,
                 modifier = cardModifier
             )
             Spacer(modifier = Modifier.size(14.dp))
@@ -63,6 +67,7 @@ fun Home(
 @Composable
 fun DailySuggestedSongCard(
     getUiState: () -> HomeUIState,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val uiState = getUiState()
@@ -85,6 +90,9 @@ fun DailySuggestedSongCard(
                         text = uiState.songLink,
                         style = Typography.bodyMedium
                     )
+                }
+                is HomeUIState.UserNotSignedIn -> {
+                    navController.navigate("login")
                 }
             }
         }

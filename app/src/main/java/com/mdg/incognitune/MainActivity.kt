@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.mdg.incognitune.common.ui.theme.IncognituneTheme
-import com.mdg.incognitune.firebaseauth.domain.FirebaseAuthRepo
+import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

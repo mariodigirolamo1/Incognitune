@@ -4,14 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdg.incognitune.common.model.SongRecord
+import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
 import com.mdg.incognitune.firestore.domain.AddSongRecordUseCase
 import com.mdg.incognitune.firestore.domain.GetRandomSongUseCase
 import com.mdg.incognitune.firestore.domain.GetSongsCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -23,6 +22,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val firebaseAuthRepo: FirebaseAuthRepo,
     private val addSongRecordUseCase: AddSongRecordUseCase,
     private val getSongsCountUseCase: GetSongsCountUseCase,
     private val getRandomSongUseCase: GetRandomSongUseCase
@@ -31,8 +31,14 @@ class HomeViewModel @Inject constructor(
     val uiState = _uiState
 
     init {
-        getSongsCount()
-        getRandomSong()
+        if(firebaseAuthRepo.isUserSignedIn()){
+            getSongsCount()
+            getRandomSong()
+        }else{
+            viewModelScope.launch {
+                _uiState.emit(HomeUIState.UserNotSignedIn)
+            }
+        }
     }
 
     private fun getSongsCount(){
