@@ -1,6 +1,8 @@
 package com.mdg.incognitune.home
 
-import android.widget.ProgressBar
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,22 +24,52 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.mdg.incognitune.IncognituneApp
-import com.mdg.incognitune.common.ui.theme.IncognituneTheme
 import com.mdg.incognitune.common.ui.theme.Typography
 
+// TODO: Move this viewModel and navController away for preview
 @Composable
 fun Home(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    val fillSizeModifier = Modifier.fillMaxSize()
     val uiState = viewModel.uiState.collectAsState()
+    when(uiState.value){
+        is HomeUIState.Loading -> {
+            Surface {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CircularProgressIndicator(
+                        strokeWidth = 12.dp,
+                        modifier = Modifier.size(200.dp)
+                    )
+                }
+            }
+        }
+        is HomeUIState.Ready -> {
+            HomeReady(
+                viewModel = viewModel,
+                // TODO: defer this read
+                songLink = (uiState.value as HomeUIState.Ready).songLink
+            )
+        }
+        is HomeUIState.UserNotSignedIn -> {
+            navController.navigate("login")
+        }
+    }
+}
+
+@Composable
+fun HomeReady(
+    viewModel: HomeViewModel,
+    songLink: String
+) {
+    val fillSizeModifier = Modifier.fillMaxSize()
     Surface(
         modifier = fillSizeModifier
     ){
@@ -51,50 +83,44 @@ fun Home(
                 .padding(14.dp)
             Spacer(modifier = Modifier.size(28.dp))
             DailySuggestedSongCard(
-                getUiState = { uiState.value },
-                navController = navController,
+                getSongLink = { songLink },
                 modifier = cardModifier
             )
             Spacer(modifier = Modifier.size(14.dp))
             YourDailySubmissionCard(
-                onSubmit = { viewModel.addSong() },
+                onSubmit = { songLink -> viewModel.addSong(songLink) },
                 modifier = cardModifier
             )
+            Spacer(modifier = Modifier.size(28.dp))
+            SignOutButton(signOut = { viewModel.signOut() })
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailySuggestedSongCard(
-    getUiState: () -> HomeUIState,
-    navController: NavHostController,
+    getSongLink: () -> String,
     modifier: Modifier = Modifier
 ) {
-    val uiState = getUiState()
-    Card{
+    val songLink = getSongLink()
+    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(songLink));
+    Card(
+        onClick = {  }
+    ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
         ) {
             Text(
-                text = "Suggested song",
+                text = "Your daily song!",
                 style = Typography.titleLarge
             )
             Spacer(modifier = Modifier.size(14.dp))
-            when(uiState){
-                is HomeUIState.Loading -> {
-                    CircularProgressIndicator()
-                }
-                is HomeUIState.Ready -> {
-                    Text(
-                        text = uiState.songLink,
-                        style = Typography.bodyMedium
-                    )
-                }
-                is HomeUIState.UserNotSignedIn -> {
-                    navController.navigate("login")
-                }
-            }
+            Text(
+                text = songLink,
+                style = Typography.bodyMedium
+            )
         }
     }
 }
@@ -102,7 +128,7 @@ fun DailySuggestedSongCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YourDailySubmissionCard(
-    onSubmit: () -> Unit,
+    onSubmit: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card{
@@ -124,17 +150,18 @@ fun YourDailySubmissionCard(
                 label = { Text("Your song link") }
             )
             Spacer(modifier = Modifier.size(14.dp))
-            Button(onClick = onSubmit) {
+            Button(onClick = { onSubmit(yourSongLink) }) {
                 Text(text = "Send to the World!")
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun IncognituneAppPreview() {
-    IncognituneTheme {
-        IncognituneApp()
+fun SignOutButton(
+    signOut: () -> Unit
+) {
+    Button(onClick = signOut) {
+        Text(text = "Logout")
     }
 }

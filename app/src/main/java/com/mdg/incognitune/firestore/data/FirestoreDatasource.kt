@@ -3,6 +3,7 @@ package com.mdg.incognitune.firestore.data
 import android.util.Log
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.mdg.incognitune.common.data.Datasource
@@ -34,9 +35,21 @@ class FirestoreDatasource @Inject constructor() : Datasource {
         }
     }
 
-    override suspend fun getRandomSong(): Result<SongRecord> {
+    /**
+     * Given a userId, retrieves a random inserted ONLY from userIds different from
+     * the one provided.
+     *
+     * Use Case: a user will only receive song submitted by other users but not
+     *           ones submitted by himself.
+     */
+    override suspend fun getRandomSong(
+        userId: String?
+    ): Result<SongRecord> {
         return kotlin.runCatching {
-            val latestSongs = getLatestDocuments().getOrThrow()
+            val latestSongs = getLatestDocumentsFormOtherUsers(userId = userId!!).getOrThrow()
+            // TODO: this random should be generated from a combination of
+            //  userId and today's date to the day, so same day
+            //  returns the same result every time
             val latestSong = latestSongs[Random.nextInt(latestSongs.size)]
             SongRecord(
                 addedBy = latestSong.getString(SONG_RECORD_FIELD_ADDED_BY)!!,
@@ -46,7 +59,9 @@ class FirestoreDatasource @Inject constructor() : Datasource {
         }
     }
 
-    private suspend fun getLatestDocuments(): Result<List<DocumentSnapshot>> {
+    private suspend fun getLatestDocumentsFormOtherUsers(
+        userId: String
+    ): Result<List<DocumentSnapshot>> {
         return kotlin.runCatching {
             val songsListSize = getSongsCount().getOrThrow()
             val fetchSongsLimit = 30
@@ -54,9 +69,12 @@ class FirestoreDatasource @Inject constructor() : Datasource {
                 .coerceAtMost(songsListSize.toInt())
                 .toLong()
 
+            val filter = Filter.notEqualTo(SONG_RECORD_FIELD_ADDED_BY,userId)
+
             suspendCoroutine { continuation ->
                 db.collection(COLLECTION_SONGS)
-                    .orderBy(SONG_RECORD_FIELD_CREATION)
+                    .where(filter)
+                    .orderBy(SONG_RECORD_FIELD_ADDED_BY)
                     .limitToLast(realSongsLimit)
                     .get()
                     .addOnSuccessListener { querySnapshot ->

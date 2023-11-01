@@ -2,21 +2,32 @@ package com.mdg.incognitune.firebaseauth.data
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.mdg.incognitune.firebaseauth.model.UserSignedInState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.sign
 
 class FirebaseAuthRepo {
     private lateinit var auth: FirebaseAuth
+    private var user: FirebaseUser? = null
+    var signedIn = false
 
     fun initAuth(){
         auth = Firebase.auth
+        user = auth.currentUser
     }
 
-    fun isUserSignedIn() = auth.currentUser == null
+    fun isUserSignedIn() = auth.currentUser != null
+
+    fun getUserId(): String? = auth.currentUser?.email
 
     /**
      * Usage
@@ -59,6 +70,7 @@ class FirebaseAuthRepo {
                 auth.signInWithEmailAndPassword(email,password)
                     .addOnSuccessListener {authResult ->
                         Log.i(TAG, "signIn: some result in $authResult")
+                        user = authResult.user
                         continuation.resume(authResult.user!!)
                     }
                     .addOnFailureListener{exception ->
@@ -66,6 +78,19 @@ class FirebaseAuthRepo {
                         continuation.resumeWithException(exception)
                     }
             }
+        }
+    }
+
+    suspend fun signOut(){
+        suspendCoroutine { continuation ->
+            val authStateListener = AuthStateListener {
+                if(it.currentUser == null && user != null){
+                    user = null
+                    continuation.resume(Unit)
+                }
+            }
+            auth.addAuthStateListener(authStateListener)
+            auth.signOut()
         }
     }
 

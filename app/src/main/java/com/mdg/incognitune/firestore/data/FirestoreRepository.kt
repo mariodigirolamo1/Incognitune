@@ -10,8 +10,8 @@ class FirestoreRepository @Inject constructor(
         return firestoreDatasource.addSong(song)
     }
 
-    suspend fun getRandomSong(): Result<SongRecord>{
-        return firestoreDatasource.getRandomSong()
+    suspend fun getRandomSong(userId: String?): Result<SongRecord>{
+        return firestoreDatasource.getRandomSong(userId = userId)
     }
 
     suspend fun getSongsCount(): Result<Long>{

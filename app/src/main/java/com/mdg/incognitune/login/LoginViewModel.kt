@@ -3,7 +3,12 @@ package com.mdg.incognitune.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
+import com.mdg.incognitune.firebaseauth.model.UserSignedInState
+import com.mdg.incognitune.home.HomeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -17,13 +22,8 @@ class LoginViewModel @Inject constructor(
     val uiState = _uiState
 
     init {
-        firebaseAuthRepo.initAuth()
         viewModelScope.launch {
-            if(firebaseAuthRepo.isUserSignedIn()){
-                _uiState.emit(LoginUIState.LoginSuccessful)
-            }else{
-                _uiState.emit(LoginUIState.Ready)
-            }
+            _uiState.emit(LoginUIState.Ready)
         }
     }
 

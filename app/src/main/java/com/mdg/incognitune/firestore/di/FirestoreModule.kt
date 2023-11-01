@@ -1,6 +1,7 @@
 package com.mdg.incognitune.firestore.di
 
 import com.mdg.incognitune.common.data.Datasource
+import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
 import com.mdg.incognitune.firestore.data.FirestoreDatasource
 import com.mdg.incognitune.firestore.data.FirestoreRepository
 import com.mdg.incognitune.firestore.domain.AddSongRecordUseCase
@@ -41,6 +42,10 @@ object FirestoreModule {
     @Singleton
     @Provides
     fun provideGetRandomSongUseCase(
-        firestoreRepository: FirestoreRepository
-    ) = GetRandomSongUseCase(firestoreRepository = firestoreRepository)
+        firestoreRepository: FirestoreRepository,
+        firebaseAuthRepo: FirebaseAuthRepo
+    ) = GetRandomSongUseCase(
+        firestoreRepository = firestoreRepository,
+        firebaseAuthRepo = firebaseAuthRepo
+    )
 }

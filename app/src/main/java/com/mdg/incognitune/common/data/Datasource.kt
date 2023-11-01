@@ -4,6 +4,6 @@ import com.mdg.incognitune.common.model.SongRecord
 
 interface Datasource {
     suspend fun addSong(song: SongRecord): Result<Unit>
-    suspend fun getRandomSong(): Result<SongRecord>
+    suspend fun getRandomSong(userId: String?): Result<SongRecord>
     suspend fun getSongsCount(): Result<Long>
 }

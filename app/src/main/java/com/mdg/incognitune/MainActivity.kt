@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         firebaseAuthRepo.initAuth()
 
         setContent {
-            IncognituneTheme {
+            IncognituneTheme(darkTheme = false) {
                 IncognituneApp()
             }
         }
@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         // TODO: understand if this actually needs to be passed down in composables
-        if(firebaseAuthRepo.isUserSignedIn()){
+        if(firebaseAuthRepo.signedIn){
             // TODO: do somethign with user signed in?
         }else{
             // TODO: do something with user not signed in?

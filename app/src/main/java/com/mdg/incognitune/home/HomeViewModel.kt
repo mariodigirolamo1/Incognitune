@@ -12,7 +12,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -38,6 +37,13 @@ class HomeViewModel @Inject constructor(
             viewModelScope.launch {
                 _uiState.emit(HomeUIState.UserNotSignedIn)
             }
+        }
+    }
+
+    fun signOut(){
+        viewModelScope.launch {
+            firebaseAuthRepo.signOut()
+            _uiState.emit(HomeUIState.UserNotSignedIn)
         }
     }
 
@@ -68,22 +74,38 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addSong(){
-        val song = SongRecord(
-            addedBy = UUID.randomUUID().toString(),
-            creation = System.currentTimeMillis(),
-            link = "somerandomlink"
-        )
-        // TODO: inject dispatchers for testing
-        viewModelScope.launch(Dispatchers.IO) {
-            kotlin.runCatching {
-                addSongRecordUseCase(song = song).getOrThrow()
-            }.onSuccess {
-                Log.i(TAG, "addSong: success")
-            }.onFailure { throwable ->
-                Log.e(TAG, "addSong: failed", throwable)
+    fun addSong(
+        songLink: String
+    ){
+        if(isValidSongLink(songLink = songLink)){
+            firebaseAuthRepo.getUserId()?.let{ userId ->
+                val song = SongRecord(
+                    addedBy = userId,
+                    creation = System.currentTimeMillis(),
+                    link = songLink
+                )
+                // TODO: inject dispatchers for testing
+                viewModelScope.launch(Dispatchers.IO) {
+                    kotlin.runCatching {
+                        addSongRecordUseCase(song = song).getOrThrow()
+                    }.onSuccess {
+                        Log.i(TAG, "addSong: success")
+                    }.onFailure { throwable ->
+                        Log.e(TAG, "addSong: failed", throwable)
+                    }
+                }
             }
+        }else{
+            Log.e(TAG, "addSong: provided url is invalid")
         }
+    }
+
+    private fun isValidSongLink(
+        songLink: String
+    ): Boolean {
+        return if(songLink == "") false
+        else if(songLink.startsWith("https://www.youtube.com/")) true
+        else songLink.startsWith("https://open.spotify.com/")
     }
 
     private companion object{
