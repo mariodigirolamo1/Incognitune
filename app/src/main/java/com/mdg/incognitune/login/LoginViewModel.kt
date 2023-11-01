@@ -29,14 +29,15 @@ class LoginViewModel @Inject constructor(
 
     fun login(
         email: String,
-        password: String
+        password: String,
+        navigateToHome: () -> Unit
     ) {
         viewModelScope.launch {
             kotlin.runCatching {
                 firebaseAuthRepo.signIn(email, password)
             }.onSuccess {result ->
                 Log.i(TAG, "login: success with result $result")
-                _uiState.emit(LoginUIState.LoginSuccessful)
+                navigateToHome()
             }.onFailure { throwable ->
                 Log.e(TAG, "login: failed", throwable)
             }

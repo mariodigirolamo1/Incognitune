@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -104,22 +105,17 @@ fun DailySuggestedSongCard(
     modifier: Modifier = Modifier
 ) {
     val songLink = getSongLink()
-    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(songLink));
+    val uriHandler = LocalUriHandler.current
     Card(
-        onClick = {  }
+        onClick = { uriHandler.openUri(songLink) }
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
         ) {
             Text(
-                text = "Your daily song!",
+                text = "Click me for your daily song! \uD83C\uDF81",
                 style = Typography.titleLarge
-            )
-            Spacer(modifier = Modifier.size(14.dp))
-            Text(
-                text = songLink,
-                style = Typography.bodyMedium
             )
         }
     }

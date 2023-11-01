@@ -1,5 +1,6 @@
 package com.mdg.incognitune.login
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +28,7 @@ import androidx.navigation.NavHostController
 @Composable
 fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
-    navController: NavHostController
+    navigateToHome: () -> Unit
 ) {
     when(viewModel.uiState.collectAsState().value){
         is LoginUIState.Error -> {
@@ -42,13 +43,10 @@ fun Login(
                     viewModel.signup(email,password)
                 },
                 login = { email, password ->
-                    viewModel.login(email,password)
-                }
+                    viewModel.login(email,password, navigateToHome)
+                },
+                navigateToHome = navigateToHome
             )
-        }
-
-        LoginUIState.LoginSuccessful -> {
-            navController.navigate("home")
         }
     }
 }
@@ -57,7 +55,8 @@ fun Login(
 @Composable
 fun LoginCard(
     signup: (String, String) -> Unit,
-    login: (String, String) -> Unit
+    login: (String, String) -> Unit,
+    navigateToHome: () -> Unit
 ) {
     Surface {
         Column(
@@ -94,7 +93,9 @@ fun LoginCard(
                         Text("Sign Up")
                     }
                     Button(
-                        onClick = { login(email, password) }
+                        onClick = {
+                            login(email, password)
+                        }
                     ) {
                         Text("Login")
                     }

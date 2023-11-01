@@ -3,11 +3,13 @@ package com.mdg.incognitune.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mdg.incognitune.common.model.SongRecord
 import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
 import com.mdg.incognitune.firestore.domain.AddSongRecordUseCase
 import com.mdg.incognitune.firestore.domain.GetRandomSongUseCase
 import com.mdg.incognitune.firestore.domain.GetSongsCountUseCase
+import com.mdg.incognitune.firestore.domain.getSongsAddedTodayCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,17 +25,18 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val firebaseAuthRepo: FirebaseAuthRepo,
     private val addSongRecordUseCase: AddSongRecordUseCase,
-    private val getSongsCountUseCase: GetSongsCountUseCase,
-    private val getRandomSongUseCase: GetRandomSongUseCase
+    private val getRandomSongUseCase: GetRandomSongUseCase,
+    private val getSongsAddedTodayCountUseCase: getSongsAddedTodayCountUseCase
 ) : ViewModel() {
     private var _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
     val uiState = _uiState
 
     init {
         if(firebaseAuthRepo.isUserSignedIn()){
-            getSongsCount()
             getRandomSong()
+            getSongsAddedTodayCount()
         }else{
+            Log.i(TAG, "user is signed out")
             viewModelScope.launch {
                 _uiState.emit(HomeUIState.UserNotSignedIn)
             }
@@ -47,15 +50,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getSongsCount(){
-        // TODO: result handling can be put to common factors
-        viewModelScope.launch(Dispatchers.IO){
+    private fun getSongsAddedTodayCount(){
+        viewModelScope.launch(Dispatchers.IO) {
             kotlin.runCatching {
-                getSongsCountUseCase().getOrThrow()
-            }.onSuccess {
-                Log.i(TAG, "getSongsCount: $it songs found")
-            }.onFailure {
-                Log.e(TAG, "getSongsCount: failed", it)
+                getSongsAddedTodayCountUseCase().getOrThrow()
+            }.onSuccess { dailyAddedSongsCount ->
+                Log.i(TAG, "getSongsAddedTodayCount: this user added $dailyAddedSongsCount songs today")
+            }.onFailure { throwable ->
+                Log.e(TAG, "getSongsAddedTodayCount: failed", throwable)
             }
         }
     }

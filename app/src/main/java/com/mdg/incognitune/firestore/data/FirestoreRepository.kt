@@ -17,4 +17,8 @@ class FirestoreRepository @Inject constructor(
     suspend fun getSongsCount(): Result<Long>{
         return firestoreDatasource.getSongsCount()
     }
+
+    suspend fun getAddedTodaySongsCount(userId: String?): Result<Long>{
+        return firestoreDatasource.getAddedTodaySongsCount(userId = userId)
+    }
 }

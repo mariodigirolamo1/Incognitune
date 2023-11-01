@@ -12,6 +12,10 @@ fun IncognituneApp() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home"){
         composable("home"){ Home(navController = navController) }
-        composable("login"){ Login(navController = navController) }
+        composable("login"){
+            Login(
+                navigateToHome = { navController.navigate("home") }
+            )
+        }
     }
 }

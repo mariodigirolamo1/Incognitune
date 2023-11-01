@@ -4,23 +4,48 @@ import android.util.Log
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Filter
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.mdg.incognitune.common.data.Datasource
 import com.mdg.incognitune.common.model.SongRecord
+import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 // TODO: this needs firebase auth otherwise no production green light
 class FirestoreDatasource @Inject constructor() : Datasource {
     private val db = Firebase.firestore
 
+    override suspend fun getAddedTodaySongsCount(userId: String?): Result<Long> {
+        return kotlin.runCatching {
+            val yesterdayThisHourMillis = System.currentTimeMillis() - 24 * 60 * 60 * 1000
+
+            suspendCoroutine { continuation ->
+                db.collection(COLLECTION_SONGS)
+                    .whereEqualTo(SONG_RECORD_FIELD_ADDED_BY, userId)
+                    .whereGreaterThanOrEqualTo(SONG_RECORD_FIELD_CREATION, yesterdayThisHourMillis)
+                    .count()
+                    .get(AggregateSource.SERVER)
+                    .addOnSuccessListener { aggregateQuerySnapshot ->
+                        Log.i(TAG, "getSongsUploadedToday: songs that users added today are ${aggregateQuerySnapshot.count}")
+                        continuation.resume(aggregateQuerySnapshot.count)
+                    }
+                    .addOnFailureListener{ exception ->
+                        Log.e(TAG, "getSongsUploadedToday: failed", exception)
+                        continuation.resumeWithException(exception)
+                    }
+            }
+        }
+    }
+
     override suspend fun addSong(song: SongRecord): Result<Unit> {
         return kotlin.runCatching {
-            suspendCoroutine {continuation ->
+            suspendCoroutine { continuation ->
                 db.collection(COLLECTION_SONGS)
                     .add(song)
                     .addOnSuccessListener {documentReference ->
