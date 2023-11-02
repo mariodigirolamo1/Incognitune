@@ -36,8 +36,7 @@ fun Home(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    val uiState = viewModel.uiState.collectAsState()
-    when(uiState.value){
+    when(val uiState = viewModel.uiState.collectAsState().value){
         is HomeUIState.Loading -> {
             Surface {
                 Column(
@@ -54,9 +53,10 @@ fun Home(
         }
         is HomeUIState.Ready -> {
             HomeReady(
+                uiState = uiState,
                 viewModel = viewModel,
                 // TODO: defer this read
-                songLink = (uiState.value as HomeUIState.Ready).songLink
+                songLink = uiState.songLink
             )
         }
         is HomeUIState.UserNotSignedIn -> {
@@ -67,6 +67,7 @@ fun Home(
 
 @Composable
 fun HomeReady(
+    uiState: HomeUIState,
     viewModel: HomeViewModel,
     songLink: String
 ) {
@@ -89,6 +90,7 @@ fun HomeReady(
             )
             Spacer(modifier = Modifier.size(14.dp))
             YourDailySubmissionCard(
+                uiState = uiState,
                 onSubmit = { songLink -> viewModel.addSong(songLink) },
                 modifier = cardModifier
             )
@@ -121,9 +123,45 @@ fun DailySuggestedSongCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YourDailySubmissionCard(
+    uiState: HomeUIState,
+    onSubmit: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when(uiState){
+        HomeUIState.Loading -> {}
+        is HomeUIState.Ready -> {
+            if(uiState.hasSentDailySong){
+                SongAlreadySubmittedCard(modifier = modifier)
+            }else{
+                SubmitSongForm(onSubmit = onSubmit, modifier = modifier)
+            }
+        }
+        HomeUIState.UserNotSignedIn -> {}
+    }
+}
+
+@Composable
+fun SongAlreadySubmittedCard(
+    modifier: Modifier = Modifier
+) {
+    Card {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+        ) {
+            Text(
+                text = "Your song already shipped! \uD83D\uDE80\n Send a new one tomorrow!",
+                style = Typography.bodyMedium
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SubmitSongForm(
     onSubmit: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {

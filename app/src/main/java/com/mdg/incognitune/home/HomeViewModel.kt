@@ -3,12 +3,10 @@ package com.mdg.incognitune.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mdg.incognitune.common.model.SongRecord
 import com.mdg.incognitune.firebaseauth.data.FirebaseAuthRepo
 import com.mdg.incognitune.firestore.domain.AddSongRecordUseCase
 import com.mdg.incognitune.firestore.domain.GetRandomSongUseCase
-import com.mdg.incognitune.firestore.domain.GetSongsCountUseCase
 import com.mdg.incognitune.firestore.domain.getSongsAddedTodayCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,8 +31,12 @@ class HomeViewModel @Inject constructor(
 
     init {
         if(firebaseAuthRepo.isUserSignedIn()){
-            getRandomSong()
-            getSongsAddedTodayCount()
+            viewModelScope.launch {
+                val readyUiState = HomeUIState.Ready(songLink = "", hasSentDailySong = true)
+                getRandomSong(uiState = readyUiState)
+                getSongsAddedTodayCount(uiState = readyUiState)
+                _uiState.emit(readyUiState)
+            }
         }else{
             Log.i(TAG, "user is signed out")
             viewModelScope.launch {
@@ -50,29 +52,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getSongsAddedTodayCount(){
-        viewModelScope.launch(Dispatchers.IO) {
-            kotlin.runCatching {
-                getSongsAddedTodayCountUseCase().getOrThrow()
-            }.onSuccess { dailyAddedSongsCount ->
-                Log.i(TAG, "getSongsAddedTodayCount: this user added $dailyAddedSongsCount songs today")
-            }.onFailure { throwable ->
-                Log.e(TAG, "getSongsAddedTodayCount: failed", throwable)
-            }
+    private suspend fun getSongsAddedTodayCount(
+        uiState: HomeUIState.Ready
+    ){
+        kotlin.runCatching {
+            getSongsAddedTodayCountUseCase().getOrThrow()
+        }.onSuccess { dailyAddedSongsCount ->
+            uiState.hasSentDailySong = dailyAddedSongsCount.toInt() != 0
+            Log.i(TAG, "getSongsAddedTodayCount: this user added $dailyAddedSongsCount songs today")
+        }.onFailure { throwable ->
+            Log.e(TAG, "getSongsAddedTodayCount: failed", throwable)
         }
     }
 
-    private fun getRandomSong(){
-        viewModelScope.launch(Dispatchers.IO){
-            kotlin.runCatching {
-                getRandomSongUseCase().getOrThrow()
-            }.onSuccess {song ->
-                val songLink = song.link
-                Log.i(TAG, "getRandomSong: $songLink")
-                _uiState.emit(HomeUIState.Ready(songLink = songLink))
-            }.onFailure {throwable ->
-                Log.e(TAG, "getRandomSong: failed", throwable)
-            }
+    private suspend fun getRandomSong(
+        uiState: HomeUIState.Ready
+    ){
+        kotlin.runCatching {
+            getRandomSongUseCase().getOrThrow()
+        }.onSuccess {song ->
+            val songLink = song.link
+            uiState.songLink = songLink
+            Log.i(TAG, "getRandomSong: $songLink")
+        }.onFailure {throwable ->
+            Log.e(TAG, "getRandomSong: failed", throwable)
         }
     }
 
