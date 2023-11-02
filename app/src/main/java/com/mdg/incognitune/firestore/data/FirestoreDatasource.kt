@@ -72,16 +72,20 @@ class FirestoreDatasource @Inject constructor() : Datasource {
     ): Result<SongRecord> {
         return kotlin.runCatching {
             val latestSongs = getLatestDocumentsFormOtherUsers(userId = userId!!).getOrThrow()
-            // TODO: this random should be generated from a combination of
-            //  userId and today's date to the day, so same day
-            //  returns the same result every time
-            val latestSong = latestSongs[Random.nextInt(latestSongs.size)]
+            val seed = getSeed(userId = userId)
+            val latestSong = latestSongs[Random(seed).nextInt(latestSongs.size)]
             SongRecord(
                 addedBy = latestSong.getString(SONG_RECORD_FIELD_ADDED_BY)!!,
                 creation = latestSong.getLong(SONG_RECORD_FIELD_CREATION)!!,
                 link = latestSong.getString(SONG_RECORD_FIELD_LINK)!!
             )
         }
+    }
+
+    private fun getSeed(userId: String): Int {
+        var userIdInt = 0
+        userId.forEach { userIdInt += it.code }
+        return Integer.valueOf(userIdInt) + LocalDate.now().dayOfMonth
     }
 
     private suspend fun getLatestDocumentsFormOtherUsers(
