@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private var _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
     val uiState = _uiState
 
-    init {
+    init {  
         if(firebaseAuthRepo.isUserSignedIn()){
             viewModelScope.launch {
                 val readyUiState = HomeUIState.Ready(songLink = "", hasSentDailySong = true)
@@ -95,6 +95,13 @@ class HomeViewModel @Inject constructor(
                         addSongRecordUseCase(song = song).getOrThrow()
                     }.onSuccess {
                         Log.i(TAG, "addSong: success")
+                        val currentUiState = uiState.value as HomeUIState.Ready
+                        _uiState.emit(
+                            HomeUIState.Ready(
+                                songLink = currentUiState.songLink,
+                                hasSentDailySong = true
+                            )
+                        )
                     }.onFailure { throwable ->
                         Log.e(TAG, "addSong: failed", throwable)
                     }

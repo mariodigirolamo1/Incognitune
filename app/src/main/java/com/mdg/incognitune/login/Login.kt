@@ -30,14 +30,11 @@ fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToHome: () -> Unit
 ) {
-    when(viewModel.uiState.collectAsState().value){
-        is LoginUIState.Error -> {
-            // TODO: show error
-        }
+    when(val uiState = viewModel.uiState.collectAsState().value){
         LoginUIState.Loading -> {
             CircularProgressIndicator()
         }
-        LoginUIState.Ready -> {
+        is LoginUIState.Ready -> {
             LoginCard(
                 signup = {email, password ->
                     viewModel.signup(email,password)
@@ -45,7 +42,8 @@ fun Login(
                 login = { email, password ->
                     viewModel.login(email,password, navigateToHome)
                 },
-                navigateToHome = navigateToHome
+                navigateToHome = navigateToHome,
+                errorMessage = uiState.errorMessage
             )
         }
     }
@@ -56,7 +54,8 @@ fun Login(
 fun LoginCard(
     signup: (String, String) -> Unit,
     login: (String, String) -> Unit,
-    navigateToHome: () -> Unit
+    navigateToHome: () -> Unit,
+    errorMessage: String?
 ) {
     Surface {
         Column(
@@ -78,15 +77,20 @@ fun LoginCard(
                         onValueChange = {email = it},
                         label = {
                             Text(text = "E-Mail")
-                        }
+                        },
+                        isError = errorMessage != null
                     )
                     OutlinedTextField(
                         value = password,
                         onValueChange = {password = it},
                         label = {
                             Text(text = "Password")
-                        }
+                        },
+                        isError = errorMessage != null
                     )
+                    errorMessage?.let{
+                        Text(text = errorMessage)
+                    }
                     Button(
                         onClick = { signup(email, password) }
                     ) {
